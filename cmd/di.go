@@ -227,7 +227,6 @@ func (di *Dependencies) Bootstrap(nodeOptions node.Options) error {
 	if err := di.bootstrapAuthenticator(); err != nil {
 		return err
 	}
-	di.migrateCrendentials()
 	di.bootstrapUIServer(nodeOptions)
 	if err := di.bootstrapMMN(); err != nil {
 		return err
@@ -812,29 +811,6 @@ func (di *Dependencies) bootstrapAuthenticator() error {
 	di.JWTAuthenticator = auth.NewJWTAuthenticator(key)
 
 	return nil
-}
-
-// TODO: This should be removed when we no longer need to care about
-// migrating credentials.
-func (di *Dependencies) migrateCrendentials() {
-	s := []auth.Storage{di.Storage}
-	if !config.GetBool(config.FlagTestnet2) {
-		testnet2, err := boltdb.NewStorage(node.GetOptionsDirectoryDB(node.NetworkSubDirTestnet2))
-		if err == nil {
-			s = append(s, testnet2)
-		}
-	}
-
-	if !config.GetBool(config.FlagTestnet) {
-		testnet, err := boltdb.NewStorage(node.GetOptionsDirectoryDB(node.NetworkSubDirTestnet))
-		if err == nil {
-			s = append(s, testnet)
-		}
-	}
-
-	if err := auth.MigrateCredentials(s); err != nil {
-		log.Err(err).Msg("Credential migration did not finish correctly")
-	}
 }
 
 func (di *Dependencies) bootstrapPilvytis(options node.Options) {
