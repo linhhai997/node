@@ -188,7 +188,7 @@ func TestConsumerConnectsToProvider(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, new(big.Int), providerStatus.Balance)
 
-		// settle hermes 1
+		// settle hermes
 		err = tequilapiProvider.SettleWithBeneficiary(providerID, providerChannelAddress, hermesID)
 		assert.NoError(t, err)
 		assert.Eventually(t, func() bool {
